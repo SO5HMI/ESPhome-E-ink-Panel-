@@ -1,0 +1,369 @@
+esphome:
+  name: salon-panel
+
+esp8266:
+  board: d1_mini
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+
+ota:
+  password: "159e2852c5911b1e7a05f02c00d33dee"
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Salon-Panel Fallback Hotspot"
+    password: "yXqiJtCh11Sw"
+
+captive_portal:
+
+
+sensor:
+  - platform: dht
+    id: panel
+    pin: D3
+    temperature:
+      name: "panel_temperatura"
+    humidity:
+      name: "panel_wilgotnosc"
+    update_interval: 600s
+    
+  - platform: homeassistant
+    id: panel_temp
+    entity_id: sensor.panel_temperatura
+    internal: true
+        
+  - platform: homeassistant
+    id: panel_hum
+    entity_id: sensor.panel_wilgotnosc
+    internal: true
+
+  - platform: homeassistant
+    id: gard_hum
+    entity_id: sensor.wilgotnosc_garderoba
+    internal: true
+
+  - platform: homeassistant
+    id: gard_temp
+    entity_id: sensor.temperatura_garderoba
+    internal: true
+    
+  - platform: homeassistant
+    id: pom_hum
+    entity_id: sensor.wilgotnosc_pomgosp
+    internal: true
+    
+  - platform: homeassistant
+    id: pom_temp
+    entity_id: sensor.temperatura_pomgosp
+    internal: true
+    
+  - platform: homeassistant
+    id: door_temp
+    entity_id: sensor.door_window_sensor_air_temperature
+    internal: true
+    
+  - platform: homeassistant
+    id: weather_temp
+    entity_id: sensor.openweathermap_temperature
+    internal: true
+    
+    
+  - platform: homeassistant
+    id: weather_hum
+    entity_id: sensor.openweathermap_humidity
+    internal: true
+    
+  - platform: homeassistant
+    id: weather_wind
+    entity_id: sensor.openweathermap_wind_speed
+    internal: true
+
+  - platform: homeassistant
+    id: weather_pressure
+    entity_id: sensor.openweathermap_pressure
+    internal: true
+    
+  - platform: homeassistant
+    id: weather_UV
+    entity_id: sensor.openweathermap_uv_index
+    internal: true
+    
+  - platform: homeassistant
+    id: weather_rain
+    entity_id: sensor.openweathermap_rain
+    internal: true
+
+  - platform: homeassistant
+    id: weather_snow
+    entity_id: sensor.openweathermap_snow
+    internal: true
+    
+  - platform: homeassistant
+    id: air_index
+    entity_id: sensor.u_s_air_quality_index
+    internal: true
+    
+text_sensor:    
+  - platform: homeassistant
+    id: weather_condition
+    entity_id: sensor.openweathermap_condition
+    internal: true
+    
+  - platform: homeassistant
+    id: sun
+    entity_id: sun.sun
+    internal: true
+    
+binary_sensor:
+  - platform: homeassistant
+    device_class: motion
+    id: drzwi_balkon
+    entity_id: binary_sensor.door_window_sensor_door_window
+    internal: true
+    on_state:
+      then:
+        - component.update: eink
+
+  - platform: homeassistant
+    device_class: light
+    name: "garderoba_swiatlo"
+    id: gard_light
+    entity_id: switch.swiatlo_garderoba
+    internal: true
+    on_state:
+      then:
+        - component.update: eink
+        
+  - platform: homeassistant
+    device_class: light
+    name: "gosp_swiatlo"
+    id: gosp_light
+    entity_id: switch.swiatlo_pomgosp
+    internal: true
+    on_state:
+      then:
+        - component.update: eink
+
+font:
+  - file: 'config/fonts/liberation/LiberationSansNarrow-Bold.ttf'
+    id: font1
+    size: 20 
+    
+  - file: 'config/fonts/Uroob-Regular.ttf' 
+    id: font2
+    size: 23
+
+  - file: 'config/fonts/liberation/LiberationSansNarrow-Bold.ttf'
+    id: font3
+    size: 20  
+    
+  - file: 'config/fonts/materialdesignicons-webfont.ttf'
+    id: icon_font
+    size: 21
+    glyphs:
+      - "\U000F0510" # mdi-Thermometer
+      - "\U000F058E" # mdi-hum
+      - "\U000F0767"  # -słońce z wykrzyknikiem" 
+      - "\U000F029A" # pressure
+      - "\U000F059B" # sunset
+      - "\U000F059C" # sunrise
+      - "\U000F059D" # wiatr windy
+      - "\U000F0596" # chmura ulewa pouring	Pouring rain
+      - "\U000F0598" # chmura gwiazdka śnieg  snowy
+      - "\U000F07F7"  # powietrze
+      - "\U000F069B" #excited
+      - "\U000F01F5" #happy 
+      - "\U000F01F6" # neutral
+      - "\U000F01F8" # sad 
+      - "\U000F069A" # dead
+       
+      
+  - file: 'config/fonts/materialdesignicons-webfont.ttf'
+    id: weather_font
+    size: 90
+    glyphs:
+      - "\U000F0594" # mdi-weather-nightclear-night	Clear night   _NOC
+      - "\U000F0599" # mdi-weather-sunny słońce                    DZIEŃ
+      - "\U000F0F30" # słońce mgła                                 NOC    
+      - "\U000F0F31" # noc częściowo zachmurzone                   NOC
+      - "\U000F0F32" # burze z piorunami, slonce, chmury lightning	Lightning  DZIEŃ
+      - "\U000F0F33" # deszcz słońce chmury                         DZIEN
+      - "\U000F0F34" # śnieg słonce chmury                          DZIEN
+      - "\U000F0F35" # deszcz, snieg, słońce chmury snowy-rainy	Snow and Rain  DZIEŃ
+      - "\U000F0F37" # bardzo słonecznie                             DZIEŃ
+      - "\U000F0590" # chmury Many clouds                            UNIWERSAL
+      - "\U000F0591" # chmury mgła Fog                               UNIWERSAL
+      - "\U000F0592" # chmury grad hail                              UNIWRSAL
+      - "\U000F0593" # chmury błyskawica lightning-rainy	Lightning/  UNIERSAL
+      - "\U000F0595" # słońce chmurka partlycloudy	A few clouds    DZIEŃ
+      - "\U000F0596" # chmura ulewa pouring	Pouring rain            UNIWRSAL
+      - "\U000F0597" # chmura kropla deszcz Rain                  UNIWERSAL
+      - "\U000F0598" # chmura gwiazdka śnieg  snowy               UNIWERSAL
+      - "\U000F059D" # wiatr windy                                 UNIWERSLA
+      - "\U000F059E" # chmury wiatr windy-variant	Wind and clouds   UNIAWRSAL
+      - "\U000F05A8" # słońce 2                                      DZIEŃ
+      - "\U000F05D6" #  exceptional -kółko z wykrzyknikiem            UNIWRSAL
+      - "\U000F0241" #  exceptional - burza            UNIWRSAL
+
+      
+     
+  - file: 'config/fonts/materialdesignicons-webfont.ttf'
+    id: icon_big
+    size: 90
+    glyphs:
+      - "\U000F11DC" # mdi-door_open
+      - "\U000F11DB" # mdi-door_closed
+
+image:
+  - file: 'config/img/lampa_on.png'
+    id: lampa_on
+    resize: 90x90
+  - file: 'config/img/lampa_off.png'
+    id: lampa_off
+    resize: 90x90
+spi:
+  clk_pin: D5
+  mosi_pin: D7
+
+display:
+  - platform: waveshare_epaper
+    id: eink
+    cs_pin: D8
+    dc_pin: D2
+    busy_pin: D1
+    reset_pin: D4
+    model: 4.20in
+    update_interval: 1800s
+    lambda: |-
+     it.line(0, 135, 400, 135);
+     it.line(0, 159, 400, 159);
+     it.filled_rectangle(0, 0, 400, 24);
+     it.filled_rectangle(0, 135, 400, 24);
+     it.line(133, 24, 133, 135);
+     it.line(133, 135, 133, 300);
+     it.line(266, 135, 266, 300);
+     it.line(0, 277, 400, 277);
+     it.line(67, 277, 67, 300);
+     it.line(200, 277, 200, 300);
+     it.line(333, 277, 333, 300);
+     it.line(133, 135, 133, 159, COLOR_OFF);
+     it.line(266, 135, 266, 159, COLOR_OFF);
+     it.line(133, 0, 133, 24, COLOR_OFF);
+
+     if (id(drzwi_balkon).state)
+      it.print(60, 215, id(icon_big), TextAlign::CENTER, "\U000F11DC");
+     else  it.print(60, 215, id(icon_big), TextAlign::CENTER, "\U000F11DB");
+      it.printf(10, 136, id(font1), COLOR_OFF, "TARAS:");
+     it.printf(143, 136, id(font1), COLOR_OFF, "POM. GOSP.:");
+     it.printf(275, 136, id(font1), COLOR_OFF, "GARDEROBA:");
+    
+     int z = 28;
+     int m = 21;
+     
+     // #Salon
+     it.printf(10, 2, id(font1), COLOR_OFF, "SALON:");
+     it.printf(33, z, id(font3), "%.1f °C", id(panel_temp).state);
+     it.printf(33, z+m, id(font3), "%.0f %%", id(panel_hum).state);
+     it.printf(33, z+3*m, id(font3), "%.1f hPa", id(weather_pressure).state);
+     it.print(5, z, id(icon_font), "\U000F0510");
+     it.print(5, z+m, id(icon_font), "\U000F058E");
+     it.print(5, z+3*m, id(icon_font), "\U000F029A");
+     it.print(5, z+4*m, id(icon_font), "\U000F07F7");
+     it.printf(30, z+4*m, id(font3), "%.0f", id(air_index).state);
+     if(id(air_index).state <51)
+       it.printf(55, z+4*m, id(icon_font), "\U000F069B"); 
+     else if (id(air_index).state <101)
+       it.printf(55, z+4*m, id(icon_font), "\U000F01F5");
+     else if (id(air_index).state <151)
+       it.printf(55, z+4*m, id(icon_font), "\U000F01F6");
+     else if (id(air_index).state <201)
+       it.printf(55, z+4*m, id(icon_font), "\U000F01F8");   
+     else if (id(air_index).state <301)
+       it.printf(55, z+4*m, id(icon_font), "\U000F069A");   
+     
+
+     // #POGODA
+     
+     it.printf(10+133, 2, id(font1), COLOR_OFF, "POGODA:");
+     it.printf(290, z, id(font3), "%.1f °C", id(weather_temp).state);
+     it.print(260, z, id(icon_font), "\U000F0510");
+     it.printf(290, z+m, id(font3), "%.0f %%", id(weather_hum).state);
+     it.print(260, z+m, id(icon_font), "\U000F058E");
+     it.printf(290, z+2*m, id(font3), "%.1f km/h", id(weather_wind).state*3.6);
+     it.print(260, z+2*m, id(icon_font), "\U000F059D");
+     it.printf(290, z+3*m, id(font3), "%.1f", id(weather_UV).state);
+     it.print(260, z+3*m, id(icon_font), "\U000F0767");
+     it.printf(290, z+4*m, id(font3), "%.1f  /", id(weather_rain).state);
+     it.print(238, z+4*m, id(icon_font), "\U000F0596");
+     it.printf(337, z+4*m, id(font3), "%.1f mm", id(weather_snow).state);     
+     it.print(260, z+4*m, id(icon_font), "\U000F0598");
+     
+     
+     
+     
+     if (id(gard_light).state)
+        it.image(287, 170, id(lampa_on));
+     else  it.image(287, 170, id(lampa_off));
+     
+     if (id(gosp_light).state)
+         it.image(287-133, 170, id(lampa_on));
+      else  it.image(287-133, 170, id(lampa_off));
+      
+     it.printf(277, 278+4, id(font2), "%.1f°C", id(gard_temp).state);
+     it.printf(277+70, 278+4, id(font2), "%.0f %%", id(gard_hum).state);
+     it.printf(143, 278+4, id(font2), "%.1f°C", id(pom_temp).state);
+     it.printf(213, 278+4, id(font2), "%.0f %%", id(pom_hum).state);
+     it.printf(10, 278+4, id(font2), "%.1f°C", id(door_temp).state);
+     int x = 155;
+     int y = 30;
+     
+     if( id(weather_condition).state == "clear-night")
+       it.print(x, y, id(weather_font), "\U000F0594");
+      else if(id(weather_condition).state== "cloudy")
+        it.print(x, y, id(weather_font), "\U000F0590");  
+      else if(id(weather_condition).state == "exceptional")
+        it.print(x, y, id(weather_font), "\U000F05D6");  
+      else if( id(weather_condition).state == "fog")
+        it.print(x, y, id(weather_font), "\U000F0591"); 
+      else if( id(weather_condition).state == "hail")
+        it.print(x, y, id(weather_font), "\U000F0592");
+      else if( id(weather_condition).state == "lightning-rainy")
+        it.print(x, y, id(weather_font), "\U000F0593");
+      else if( id(weather_condition).state == "pouring")
+        it.print(x, y, id(weather_font), "\U000F0596");
+      else if( id(weather_condition).state == "rainy")
+        it.print(x, y, id(weather_font), "\U000F0597");
+      else if( id(weather_condition).state == "snowy")
+        it.print(x, y, id(weather_font), "\U000F0598");
+      else if( id(weather_condition).state == "sunny")
+        it.print(x, y, id(weather_font), "\U000F0599");
+      else if( id(weather_condition).state == "windy")
+        it.print(x, y, id(weather_font), "\U000F059D");
+      else if( id(weather_condition).state == "windy-variant")
+        it.print(x, y, id(weather_font), "\U000F059E");
+      else 
+        it.print(x, y, id(font1), "error read");
+
+      if (id(sun).state == "below_horizon") {
+        if( id(weather_condition).state == "partlycloudy")
+              it.print(x, y, id(weather_font), "\U000F0F31");
+        else if( id(weather_condition).state == "lightning")
+           it.print(x, y, id(weather_font), "\U000F0241"); 
+        else if( id(weather_condition).state == "snowy-rainy")
+              it.print(x, y, id(weather_font), "\U000F0598"); }
+              
+      if (id(sun).state == "abowe_horizon") {
+        if(id(weather_condition).state == "partlycloudy")
+           it.print(x, y, id(weather_font), "\U000F0595");
+        else if( id(weather_condition).state == "lightning")
+           it.print(x, y, id(weather_font), "\U000F0F32");      
+        else if( id(weather_condition).state == "snowy-rainy")
+              it.print(x, y, id(weather_font), "\U000F0F35"); }
