@@ -278,18 +278,21 @@ display:
      it.print(5, z+3*m, id(icon_font), "\U000F029A");
      it.print(5, z+4*m, id(icon_font), "\U000F07F7");
      it.printf(30, z+4*m, id(font3), "%.0f", id(air_index).state);
-     if(id(air_index).state <51)
-       it.printf(55, z+4*m, id(icon_font), "\U000F069B"); 
-     else if (id(air_index).state <101)
-       it.printf(55, z+4*m, id(icon_font), "\U000F01F5");
-     else if (id(air_index).state <151)
-       it.printf(55, z+4*m, id(icon_font), "\U000F01F6");
-     else if (id(air_index).state <201)
-       it.printf(55, z+4*m, id(icon_font), "\U000F01F8");   
-     else if (id(air_index).state <301)
-       it.printf(55, z+4*m, id(icon_font), "\U000F069A");   
+    
      
-
+    
+      if (id(air_index).state > 200)
+       it.printf(60, z+4*m, id(icon_font), "\U000F069A");   
+      else if (id(air_index).state >150)
+         it.printf(60, z+4*m, id(icon_font), "\U000F01F8");   
+      else if (id(air_index).state > 100)
+       it.printf(60, z+4*m, id(icon_font), "\U000F01F6");    
+      else if (id(air_index).state > 50)
+       it.printf(60, z+4*m, id(icon_font), "\U000F01F5");
+      else 
+       it.printf(60, z+4*m, id(icon_font), "\U000F069B");   
+       
+       
      // #POGODA
      
      it.printf(10+133, 2, id(font1), COLOR_OFF, "POGODA:");
