@@ -47,22 +47,12 @@ sensor:
 
   - platform: homeassistant
     id: gard_hum
-    entity_id: sensor.wilgotnosc_garderoba
+    entity_id: sensor.garderoba_hum
     internal: true
 
   - platform: homeassistant
     id: gard_temp
-    entity_id: sensor.temperatura_garderoba
-    internal: true
-    
-  - platform: homeassistant
-    id: pom_hum
-    entity_id: sensor.wilgotnosc_pomgosp
-    internal: true
-    
-  - platform: homeassistant
-    id: pom_temp
-    entity_id: sensor.temperatura_pomgosp
+    entity_id: sensor.garderoba_temp
     internal: true
     
   - platform: homeassistant
@@ -84,6 +74,11 @@ sensor:
   - platform: homeassistant
     id: weather_wind
     entity_id: sensor.openweathermap_wind_speed
+    internal: true
+    
+  - platform: homeassistant
+    id: weather_bearing
+    entity_id: sensor.openweathermap_wind_bearing
     internal: true
 
   - platform: homeassistant
@@ -110,6 +105,16 @@ sensor:
     id: air_index
     entity_id: sensor.u_s_air_quality_index
     internal: true
+
+  - platform: homeassistant
+    name: "gosp_swiatlo"
+    id: gosp_light
+    entity_id: sensor.xiaomi_lumi_sen_ill_mgl01_illuminance
+    internal: true
+    on_value:
+      then:
+        - component.update: eink
+    
     
 text_sensor:    
   - platform: homeassistant
@@ -122,6 +127,7 @@ text_sensor:
     entity_id: sun.sun
     internal: true
     
+
 binary_sensor:
   - platform: homeassistant
     device_class: motion
@@ -136,21 +142,12 @@ binary_sensor:
     device_class: light
     name: "garderoba_swiatlo"
     id: gard_light
-    entity_id: switch.swiatlo_garderoba
+    entity_id: binary_sensor.garderoba_light
     internal: true
     on_state:
       then:
         - component.update: eink
         
-  - platform: homeassistant
-    device_class: light
-    name: "gosp_swiatlo"
-    id: gosp_light
-    entity_id: switch.swiatlo_pomgosp
-    internal: true
-    on_state:
-      then:
-        - component.update: eink
 
 font:
   - file: 'config/fonts/liberation/LiberationSansNarrow-Bold.ttf'
@@ -159,7 +156,7 @@ font:
     
   - file: 'config/fonts/Uroob-Regular.ttf' 
     id: font2
-    size: 23
+    size: 21
 
   - file: 'config/fonts/liberation/LiberationSansNarrow-Bold.ttf'
     id: font3
@@ -179,11 +176,11 @@ font:
       - "\U000F0596" # chmura ulewa pouring	Pouring rain
       - "\U000F0598" # chmura gwiazdka śnieg  snowy
       - "\U000F07F7"  # powietrze
-      - "\U000F069B" #excited
-      - "\U000F01F5" #happy 
+      - "\U000F01F3" #excited
+      - "\U000F069C" #happy 
       - "\U000F01F6" # neutral
       - "\U000F01F8" # sad 
-      - "\U000F069A" # dead
+      - "\U000F0C76" # dead
        
       
   - file: 'config/fonts/materialdesignicons-webfont.ttf'
@@ -280,17 +277,17 @@ display:
      it.printf(30, z+4*m, id(font3), "%.0f", id(air_index).state);
     
      
-    
-      if (id(air_index).state > 200)
-       it.printf(60, z+4*m, id(icon_font), "\U000F069A");   
-      else if (id(air_index).state >150)
+      float  PM = id(air_index).state;
+      if (PM > 200)
+       it.printf(60, z+4*m, id(icon_font), "\U000F0C76");   
+      else if (PM >150)
          it.printf(60, z+4*m, id(icon_font), "\U000F01F8");   
-      else if (id(air_index).state > 100)
+      else if (PM > 100)
        it.printf(60, z+4*m, id(icon_font), "\U000F01F6");    
-      else if (id(air_index).state > 50)
-       it.printf(60, z+4*m, id(icon_font), "\U000F01F5");
-      else 
-       it.printf(60, z+4*m, id(icon_font), "\U000F069B");   
+      else if (PM > 50)
+       it.printf(60, z+4*m, id(icon_font), "\U000F069C");
+      else if (PM < 50)
+       it.printf(60, z+4*m, id(icon_font), "\U000F0C76");   
        
        
      // #POGODA
@@ -309,21 +306,35 @@ display:
      it.printf(337, z+4*m, id(font3), "%.1f mm", id(weather_snow).state);     
      it.print(260, z+4*m, id(icon_font), "\U000F0598");
      
-     
+     if (id(weather_bearing).state == 0)
+       it.printf(372, z+2*m, id(font2), "N");
+     else if (id(weather_bearing).state == 90)
+       it.printf(372, z+2*m, id(font2), "E");
+     else if (id(weather_bearing).state == 180)
+        it.printf(372, z+2*m, id(font2), "S");
+     else if (id(weather_bearing).state == 270)
+       it.printf(372, z+2*m, id(font2), "W");
+     else if ((id(weather_bearing).state > 0) &  (id(weather_bearing).state < 90))
+       it.printf(372, z+2*m, id(font2), "NE");
+     else if ((id(weather_bearing).state > 90) &  (id(weather_bearing).state < 180))
+        it.printf(372, z+2*m, id(font2), "SE");
+     else if ((id(weather_bearing).state > 180) &  (id(weather_bearing).state < 270))
+        it.printf(372, z+2*m, id(font2), "SW");
+     else if ((id(weather_bearing).state > 270) &  (id(weather_bearing).state < 360))
+        it.printf(372, z+2*m, id(font2), "NW");    
+
      
      
      if (id(gard_light).state)
         it.image(287, 170, id(lampa_on));
      else  it.image(287, 170, id(lampa_off));
      
-     if (id(gosp_light).state)
+     if (id(gosp_light).state > 100)
          it.image(287-133, 170, id(lampa_on));
-      else  it.image(287-133, 170, id(lampa_off));
+     else it.image(287-133, 170, id(lampa_off));
       
      it.printf(277, 278+4, id(font2), "%.1f°C", id(gard_temp).state);
      it.printf(277+70, 278+4, id(font2), "%.0f %%", id(gard_hum).state);
-     it.printf(143, 278+4, id(font2), "%.1f°C", id(pom_temp).state);
-     it.printf(213, 278+4, id(font2), "%.0f %%", id(pom_hum).state);
      it.printf(10, 278+4, id(font2), "%.1f°C", id(door_temp).state);
      int x = 155;
      int y = 30;
@@ -352,8 +363,7 @@ display:
         it.print(x, y, id(weather_font), "\U000F059D");
       else if( id(weather_condition).state == "windy-variant")
         it.print(x, y, id(weather_font), "\U000F059E");
-      else 
-        it.print(x, y, id(font1), "error read");
+     
 
       if (id(sun).state == "below_horizon") {
         if( id(weather_condition).state == "partlycloudy")
@@ -363,7 +373,7 @@ display:
         else if( id(weather_condition).state == "snowy-rainy")
               it.print(x, y, id(weather_font), "\U000F0598"); }
               
-      if (id(sun).state == "abowe_horizon") {
+      if (id(sun).state == "above_horizon") {
         if(id(weather_condition).state == "partlycloudy")
            it.print(x, y, id(weather_font), "\U000F0595");
         else if( id(weather_condition).state == "lightning")
